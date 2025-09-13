@@ -1,0 +1,25 @@
+# docker-compose.yml
+
+version: '3.8' # Specifies the version of the Docker Compose file format
+
+services:
+  # Define our MySQL database service
+  mysql-db:
+    image: mysql:8.0 # Use the official MySQL image, version 8.0
+    container_name: gripinvest-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: your_strong_root_password # Change this for production
+      MYSQL_DATABASE: gripinvest
+      MYSQL_USER: grip_user
+      MYSQL_PASSWORD: grip_password # Change this for production
+    ports:
+      # Map port 3306 on your local machine to port 3306 in the container
+      - "3307:3306"
+    volumes:
+      # Persist database data on your local machine
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  # Define the volume for data persistence
+  mysql-data:
