@@ -9,10 +9,10 @@ services:
     container_name: gripinvest-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: your_strong_root_password # Change this for production
-      MYSQL_DATABASE: gripinvest
-      MYSQL_USER: grip_user
-      MYSQL_PASSWORD: grip_password # Change this for production
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: gripinvest # This is not a secret, so it's okay to leave it.
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       # Map port 3306 on your local machine to port 3306 in the container
       - "3307:3306"
