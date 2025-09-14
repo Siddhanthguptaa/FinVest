@@ -1,0 +1,14 @@
+# .gitignore in the project root
+
+# Ignore the environment file at the root
+.env
+
+# Ignore the example environment file if you don't want to commit it yet
+# .env.example
+
+# Ignore all node_modules folders anywhere in the project
+**/node_modules
+
+# Optional: Ignore common OS-generated files
+.DS_Store
+Thumbs.db
