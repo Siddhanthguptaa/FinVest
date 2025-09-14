@@ -9,6 +9,3 @@
 # Ignore all node_modules folders anywhere in the project
 **/node_modules
 
-# Optional: Ignore common OS-generated files
-.DS_Store
-Thumbs.db
