@@ -28,6 +28,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts"], // Tells TypeScript which files to include
-  "exclude": ["node_modules"] // Which files to exclude
+  "exclude": ["node_modules"], // Which files to exclude
+  "include": ["src/**/*.ts", "__tests__/**/*.ts"],
 }
