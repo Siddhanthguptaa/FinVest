@@ -1,6 +1,6 @@
 // backend/src/routes/auth.routes.ts
 
-import { Router, Request, Response } from 'express'; // Added Request and Response
+import { Router, Request, Response } from 'express'; 
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';

@@ -1,6 +1,5 @@
 // backend/src/index.ts
 import { app } from './app';
-
 const PORT = process.env.PORT || 8000;
 
 // This condition prevents the server from starting during tests

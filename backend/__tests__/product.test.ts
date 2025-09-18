@@ -2,11 +2,8 @@
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 
-// --- Important Fix ---
-// Set a consistent test admin ID *before* any app code is imported.
 const TEST_ADMIN_ID = 'a-fake-admin-id-for-testing';
 process.env.ADMIN_USER_ID = TEST_ADMIN_ID;
-// --- End of Fix ---
 
 import { app } from '../src/app';
 import { PrismaClient } from '@prisma/client';
@@ -22,7 +19,7 @@ describe('Product Endpoints', () => {
 
         const adminUser = await prisma.user.create({
             data: {
-                id: TEST_ADMIN_ID, // Use the consistent ID
+                id: TEST_ADMIN_ID, 
                 firstName: 'Admin',
                 email: `admin-${Date.now()}@example.com`,
                 passwordHash: 'hashedpassword',
@@ -93,7 +90,6 @@ describe('Product Endpoints', () => {
         expect(response.status).toBe(403);
     });
     it('should allow an admin to update a product', async () => {
-        // First, create a product to update
         const productResponse = await request(app)
             .post('/api/products')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -112,7 +108,6 @@ describe('Product Endpoints', () => {
             annualYield: 8.8,
         };
 
-        // Now, update the product
         const response = await request(app)
             .put(`/api/products/${productId}`)
             .set('Authorization', `Bearer ${adminToken}`)
@@ -124,7 +119,6 @@ describe('Product Endpoints', () => {
     });
 
     it('should allow an admin to delete a product', async () => {
-        // First, create a product to delete
         const productResponse = await request(app)
             .post('/api/products')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -138,7 +132,6 @@ describe('Product Endpoints', () => {
         
         const productId = productResponse.body.id;
 
-        // Now, delete the product
         const deleteResponse = await request(app)
             .delete(`/api/products/${productId}`)
             .set('Authorization', `Bearer ${adminToken}`);
@@ -146,7 +139,6 @@ describe('Product Endpoints', () => {
         expect(deleteResponse.status).toBe(200);
         expect(deleteResponse.body.message).toBe('Product deleted successfully.');
 
-        // Verify it's gone by trying to fetch it again (this is optional but good practice)
         const fetchResponse = await request(app)
             .get(`/api/products`)
             .set('Authorization', `Bearer ${userToken}`);

@@ -2,8 +2,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from './authMiddleware';
 
-// Read the Admin User ID from environment variables
-// For production, you would set this in your .env file or server configuration
+
 const ADMIN_USER_ID = process.env.ADMIN_USER_ID;
 
 export const adminMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {

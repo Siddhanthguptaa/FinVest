@@ -1,25 +1,46 @@
-# docker-compose.yml
-
-version: '3.8' # Specifies the version of the Docker Compose file format
-
 services:
-  # Define our MySQL database service
   mysql-db:
-    image: mysql:8.0 # Use the official MySQL image, version 8.0
-    container_name: gripinvest-mysql
+    image: mysql:8.0
+    container_name: finvest-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: gripinvest # This is not a secret, so it's okay to leave it.
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      # Map port 3306 on your local machine to port 3306 in the container
       - "3307:3306"
     volumes:
-      # Persist database data on your local machine
       - mysql-data:/var/lib/mysql
 
+  backend:
+    build: ./backend
+    container_name: finvest-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql-db
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: finvest-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env.local
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+
 volumes:
-  # Define the volume for data persistence
   mysql-data:

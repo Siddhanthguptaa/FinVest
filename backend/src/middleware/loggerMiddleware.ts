@@ -1,19 +1,19 @@
 // backend/src/middleware/loggerMiddleware.ts
 import { Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
-import { AuthRequest } from "./authMiddleware"; // custom request type
+import { AuthRequest } from "./authMiddleware"; 
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
 export const loggerMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  // Let the request continue
+  
   next();
 
   // After the response is sent
   res.on("finish", async () => {
     try {
-      // 🚫 Skip logging in test environment
+      // Skip logging in test environment
       if (process.env.NODE_ENV === "test") return;
 
       let userId: string | null = null;
@@ -30,7 +30,7 @@ export const loggerMiddleware = (req: AuthRequest, res: Response, next: NextFunc
         }
       }
 
-      // ✅ Only attempt logging if we have a valid userId
+      // Only attempt logging if we have a valid userId
       if (userId) {
         await prisma.transactionLog.create({
           data: {

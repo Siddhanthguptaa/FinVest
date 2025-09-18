@@ -2,14 +2,14 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Defines the database connection. We're using MySQL.
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-}
-
-// Specifies the Prisma Client generator.
-generator client {
-  provider = "prisma-client-js"
 }
 
 // --- ENUM Definitions ---

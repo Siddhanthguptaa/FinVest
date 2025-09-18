@@ -6,17 +6,14 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 describe('Auth Endpoints', () => {
-    // Before each test, we'll clean out the database
     beforeEach(async () => {
         await prisma.user.deleteMany({});
     });
 
-    // After all tests are done, disconnect from the database
     afterAll(async () => {
         await prisma.$disconnect();
     });
-
-    // Test case 1: Successful user signup (This was the missing one)
+    // Test case 1: Successful user signup
     it('should allow a new user to sign up successfully', async () => {
         const newUser = {
             firstName: 'Test',
@@ -47,7 +44,7 @@ describe('Auth Endpoints', () => {
                 password: 'Password123!',
             });
 
-        // Now, try to sign up again with the same email
+        // Attempt to create another user with the same email
         const response = await request(app)
             .post('/api/auth/signup')
             .send({
