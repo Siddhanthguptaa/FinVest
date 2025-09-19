@@ -22,6 +22,7 @@ This is a full-stack application built for a Winter Internship 2025 program. It 
     - An interactive chatbot to explain financial terms.
     - On-demand analysis of market tickers.
 - Automated API transaction logger.
+- **Backend Health Check:** Includes a `/health` endpoint for monitoring service status.
 - Comprehensive backend test suite with >75% coverage on all testable modules.
 
 ## Getting Started
