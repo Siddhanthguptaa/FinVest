@@ -5,21 +5,24 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 
+interface PortfolioData {
+    totalInvested: number;
+    totalExpectedReturn: number;
+    investmentsCount: number;
+    investments: any[];
+}
+
 export default function AiInsightsPage() {
     const { user } = useAuth();
-    const [portfolio, setPortfolio] = useState(null);
-    const [products, setProducts] = useState<any[]>([]); // To get the list of products for suggestions
+    const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
+    const [products, setProducts] = useState<any[]>([]);
 
-    // State for Portfolio Review
     const [review, setReview] = useState('');
     const [isReviewLoading, setIsReviewLoading] = useState(false);
-
-    // State for Product Suggestions
     const [suggestion, setSuggestion] = useState('');
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
 
     useEffect(() => {
-        // We need both portfolio and products data for our AI features
         if (user) {
             const fetchData = async () => {
                 try {
@@ -27,7 +30,19 @@ export default function AiInsightsPage() {
                         api.get('/investments/portfolio'),
                         api.get('/products')
                     ]);
-                    setPortfolio(portfolioRes.data);
+
+                    console.log("Portfolio API Response:", portfolioRes.data);
+
+                    // Normalize portfolio response to match PortfolioData
+                    const data = portfolioRes.data;
+                    const formattedPortfolio: PortfolioData = {
+                        totalInvested: data.totalInvested ?? (data.investments ? data.investments.reduce((sum: number, inv: any) => sum + (inv.amount || 0), 0) : 0),
+                        totalExpectedReturn: data.totalExpectedReturn ?? 0,
+                        investmentsCount: data.investments ? data.investments.length : 0,
+                        investments: data.investments || []
+                    };
+
+                    setPortfolio(formattedPortfolio);
                     setProducts(productsRes.data);
                 } catch (error) {
                     console.error("Failed to fetch dashboard data", error);
@@ -38,16 +53,37 @@ export default function AiInsightsPage() {
     }, [user]);
 
     const getPortfolioReview = async () => {
-        // ... (The getPortfolioReview function is the same as before)
+        if (!portfolio) return;
+        setIsReviewLoading(true);
+        setReview('');
+
+        const prompt = `
+            Act as a professional financial advisor analyzing a user's portfolio.
+            Here is the user's current investment portfolio data:
+            ${JSON.stringify(portfolio, null, 2)}
+
+            Based on this data, please provide the following, addressed directly to the user (e.g., "Your portfolio shows..."):
+            1. A brief, one-paragraph summary of the portfolio's overall health and diversification.
+            2. In bullet points, suggest 2-3 actionable improvements or alternative products to consider.
+
+            Keep the entire response concise, easy to read, and encouraging.
+            Do not start the first sentence with "Your Grip Invest portfolio".
+        `;
+
+        try {
+            const response = await api.post('/ai/generate', { prompt });
+            setReview(response.data.response || "Could not generate a review.");
+        } catch (error) {
+            setReview("Sorry, an error occurred while generating the review. Please try again later.");
+        } finally {
+            setIsReviewLoading(false);
+        }
     };
 
     const getAiSuggestion = async () => {
         setIsSuggestionLoading(true);
         setSuggestion('');
-
-        // Note: The full user profile with riskAppetite is not in our AuthContext.
-        // For this project, we will just use 'moderate' as a default.
-        const userRiskAppetite = 'moderate'; 
+        const userRiskAppetite = 'moderate';
 
         const prompt = `Act as a robo-advisor. A user with a '${userRiskAppetite}' risk appetite is looking for investment suggestions from the following list of available products:\n${JSON.stringify(products, null, 2)}\n\nBased on their risk appetite, recommend the TOP 2 products from the list. For each, provide a brief, one-sentence justification. Format the response cleanly.`;
 
@@ -67,7 +103,11 @@ export default function AiInsightsPage() {
             <div className="bg-base-100 border border-base-300 rounded-md p-6">
                 <h2 className="text-2xl font-bold text-content-primary mb-2">AI Portfolio Insights</h2>
                 <p className="text-content-secondary mb-6">Analyze your current holdings and discover opportunities for growth.</p>
-                <button onClick={getPortfolioReview} disabled={isReviewLoading || !portfolio} className="px-6 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400">
+                <button
+                    onClick={getPortfolioReview}
+                    disabled={isReviewLoading || !portfolio}
+                    className="px-6 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
+                >
                     {isReviewLoading ? 'Analyzing...' : '✨ Analyze My Portfolio'}
                 </button>
                 {review && (
@@ -82,7 +122,11 @@ export default function AiInsightsPage() {
             <div className="bg-base-100 border border-base-300 rounded-md p-6">
                 <h2 className="text-2xl font-bold text-content-primary mb-2">AI Product Suggestions</h2>
                 <p className="text-content-secondary mb-6">Get personalized investment ideas based on your risk profile.</p>
-                <button onClick={getAiSuggestion} disabled={isSuggestionLoading || products.length === 0} className="px-6 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400">
+                <button
+                    onClick={getAiSuggestion}
+                    disabled={isSuggestionLoading || products.length === 0}
+                    className="px-6 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
+                >
                     {isSuggestionLoading ? 'Thinking...' : '💡 Suggest Products for Me'}
                 </button>
                 {suggestion && (
